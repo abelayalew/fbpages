@@ -1,0 +1,7 @@
+ 📖 use the following commands to interact with the bot.
+
+👉 /add - /add facebook_page_name, (enter the facebook page name as it appears in its url."
+
+👉 /list - lists pages you subcribed from facebook.
+
+👉 /remove - /remove facebook_page_name or /remove page_number". send the command /remove and then choose the page you want to remove. or you can use /remove with the page name. the other way to remove is use pages number which is found in the /list command.

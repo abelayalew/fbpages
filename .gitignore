@@ -6,3 +6,4 @@ sys
 test.py
 .env
 db.sqlite3
+*/migrations    
