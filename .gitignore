@@ -1,2 +1,8 @@
 venv
 .idea
+__pycache__
+os
+sys
+test.py
+.env
+db.sqlite3
