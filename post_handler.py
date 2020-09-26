@@ -10,10 +10,12 @@ import random, string
 TOKEN = config('TOKEN')
 
 
-
 def fb_post_handler(page, bot):
     name = page.name
     subscribers = eval(page.subscribers)
+    if not subscribers:
+        page.delete()
+        return
     posts = []
     for post in get_posts(name, pages=1, youtube_dl=True):
         try:
@@ -24,8 +26,8 @@ def fb_post_handler(page, bot):
 
     for post in sorted(posts, key=lambda t: t['post_id']):
         last_update = page.last_update
-        if post['post_id'] > last_update:
-            page.last_update = post['post_id']
+        if int(post['post_id']) > last_update:
+            page.last_update = int(post['post_id'])
             page.save()
         else:
             continue
@@ -84,4 +86,4 @@ def post_threader():
     while True:
         for page in Page.objects.all():
             threading.Thread(target=fb_post_handler, args=(page, bot)).start()
-        time.sleep(500)
+        time.sleep(300)
