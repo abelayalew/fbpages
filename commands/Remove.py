@@ -28,6 +28,8 @@ def pages_keyboard(user, page) -> tuple:
 
 def command_remove(update, context, *args):
     keyboard = pages_keyboard(args[0], 1)
+    if len(keyboard[0]) == 1:
+        update.message.reply_text("You Don't Have Pages To Remove.")
     reply_markup = InlineKeyboardMarkup(keyboard[0])
     update.message.reply_text(f"Select The Page You Want To Remove\n\n\tPages 1 of {keyboard[1]}", reply_markup=reply_markup)
 

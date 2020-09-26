@@ -17,6 +17,7 @@ TOKEN = os.environ.get('TOKEN')
 URL = os.environ.get('URL')
 BRO_URL = os.environ.get('BRO_URL')  # twin bot that works in shift on heroku
 PORT = int(os.environ.get('PORT', 5000))
+BOT_ID = os.environ.get('BOT_ID')
 
 
 class FbPage:
@@ -100,6 +101,8 @@ class FbPage:
             except:
                 update.message.reply_text("Invalid Link or Can't Add That Page.")
                 return
+        elif text == '.status':
+            update.message.reply_text(f"{BOT_ID}\n{(time.time() - self.start_time)//60} Minutes.")
         update.message.reply_text("Unrecognized Text")
 
 

@@ -65,16 +65,17 @@ def fb_post_handler(page, bot):
 
                     except Exception as e:
                         print(f"Exception Caught - {e}")
+
+                else:
+                    text = f'#{name[:13]}\n\n{post["text"][:983]}\n\nClick <a href="{link}">Here</a> for more ...'
+                    bot.sendMessage(chat_id=chat_id, text=text, parse_mode=telegram.ParseMode.HTML)
+
                 try:
                     for i in os.listdir():
                         if i.split('.')[-1] == 'mp4':
                             os.remove(i)
                 except:
                     pass
-
-                else:
-                    text = f'#{name[:13]}\n\n{post["text"][:983]}\n\nClick <a href="{link}">Here</a> for more ...'
-                    bot.sendMessage(chat_id=chat_id, text=text, parse_mode=telegram.ParseMode.HTML)
 
         except Exception as e:
             print(f"Exception Occurred - {e}")
