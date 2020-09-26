@@ -1,6 +1,6 @@
 import sys, os
 from decouple import config
-from telegram.ext import Updater, MessageHandler, Filters
+from telegram.ext import Updater, MessageHandler, Filters, CallbackQueryHandler
 from facebook_scraper import get_posts
 
 # django setup
@@ -27,6 +27,7 @@ class FbPage:
         """
         self.dispatcher.add_handler(MessageHandler(Filters.command, self.command_handler))
         self.dispatcher.add_handler(MessageHandler(Filters.text, self.text_handler))
+        self.dispatcher.add_handler(CallbackQueryHandler(Remove.callbacks))
         self.updater.start_polling()
         print("Initialized")
 
