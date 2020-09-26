@@ -21,3 +21,6 @@ INSTALLED_APPS = (
 
 # SECURITY WARNING: Modify this secret key if using in production!
 SECRET_KEY = os.environ.get('SECRET_KEY')
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
