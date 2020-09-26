@@ -2,6 +2,7 @@ import sys, os
 from decouple import config
 from telegram.ext import Updater, MessageHandler, Filters, CallbackQueryHandler
 from facebook_scraper import get_posts
+import threading, time
 
 # django setup
 sys.dont_write_bytecode = True
@@ -9,6 +10,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 import django
 django.setup()
 from commands import Add, Help, List, Remove, Start
+import post_handler
 from db.models import *
 
 # tokens
@@ -25,10 +27,12 @@ class FbPage:
         start the bot
         :return: None
         """
+        self.start_time = time.time()
         self.dispatcher.add_handler(MessageHandler(Filters.command, self.command_handler))
         self.dispatcher.add_handler(MessageHandler(Filters.text, self.text_handler))
         self.dispatcher.add_handler(CallbackQueryHandler(Remove.callbacks))
         self.updater.start_polling()
+        threading.Thread(target=post_handler.post_threader).start()
         print("Initialized")
 
     def extract_message(self, update):
