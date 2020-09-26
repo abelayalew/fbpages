@@ -3,11 +3,10 @@ import telegram
 import threading
 from facebook_scraper import get_posts
 from db.models import *
-from decouple import config
 import youtube_dl as yt
 import random, string
 
-TOKEN = config('TOKEN')
+TOKEN = os.environ.get('TOKEN')
 
 
 def fb_post_handler(page, bot):

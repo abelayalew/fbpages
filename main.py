@@ -35,6 +35,7 @@ class FbPage:
         self.dispatcher.add_handler(CallbackQueryHandler(Remove.callbacks))
         self.updater.start_webhook(listen='0.0.0.0', port=PORT, url_path=TOKEN)
         self.updater.bot.setWebhook(URL + TOKEN)
+        threading.Thread(target=self.main_loop).start()
         print("Initialized")
 
     def main_loop(self):
