@@ -81,9 +81,9 @@ def fb_post_handler(page, bot):
             print(f"Exception Occurred - {e}")
 
 
-def post_threader():
-    bot = telegram.Bot(TOKEN)
-    while True:
-        for page in Page.objects.all():
-            threading.Thread(target=fb_post_handler, args=(page, bot)).start()
-        time.sleep(300)
+# def post_threader():
+#     bot = telegram.Bot(TOKEN)
+#     while True:
+#         for page in Page.objects.all():
+#             threading.Thread(target=fb_post_handler, args=(page, bot)).start()
+#         time.sleep(300)

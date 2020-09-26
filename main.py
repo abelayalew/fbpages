@@ -1,8 +1,7 @@
 import sys, os
-from decouple import config
 from telegram.ext import Updater, MessageHandler, Filters, CallbackQueryHandler
 from facebook_scraper import get_posts
-import threading, time
+import threading, time, telegram, requests
 
 # django setup
 sys.dont_write_bytecode = True
@@ -14,11 +13,15 @@ import post_handler
 from db.models import *
 
 # tokens
-TOKEN = config('TOKEN')
+TOKEN = os.environ.get('TOKEN')
+URL = os.environ.get('URL')
+BRO_URL = os.environ.get('BRO_URL')  # twin bot that works in shift on heroku
+PORT = int(os.environ.get('PORT', 5000))
 
 
 class FbPage:
     def __init__(self):
+        self.start_time = time.time()
         self.updater = Updater(token=TOKEN, use_context=True)
         self.dispatcher = self.updater.dispatcher
 
@@ -27,13 +30,24 @@ class FbPage:
         start the bot
         :return: None
         """
-        self.start_time = time.time()
         self.dispatcher.add_handler(MessageHandler(Filters.command, self.command_handler))
         self.dispatcher.add_handler(MessageHandler(Filters.text, self.text_handler))
         self.dispatcher.add_handler(CallbackQueryHandler(Remove.callbacks))
-        self.updater.start_polling()
-        threading.Thread(target=post_handler.post_threader).start()
+        self.updater.start_webhook(listen='0.0.0.0', port=PORT, url_path=TOKEN)
+        self.updater.bot.setWebhook(URL + TOKEN)
         print("Initialized")
+
+    def main_loop(self):
+        bot = telegram.Bot(TOKEN)
+        while True:
+            if (time.time() - self.start_time) < 1800:
+                for page in Page.objects.all():
+                    threading.Thread(target=post_handler.fb_post_handler, args=(page, bot)).start()
+                time.sleep(300)
+            else:
+                break
+        self.updater.stop()
+        requests.request('GET', BRO_URL)
 
     def extract_message(self, update):
         chat_id = update.message.chat_id
