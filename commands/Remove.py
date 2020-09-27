@@ -11,7 +11,7 @@ def pages_keyboard(user, page) -> tuple:
     current = user_pages.page(page)
 
     for i in current.object_list:
-        keyboard.append([InlineKeyboardButton(i[:20].encode('utf-8'), callback_data=f"remove {i[:20].encode('utf-8')}")])
+        keyboard.append([InlineKeyboardButton(i[:30].encode('utf-8'), callback_data=f"remove {i[:30].encode('utf-8')}")])
     if current.has_previous() and current.has_next():
         keyboard.append([
             InlineKeyboardButton("<< Prev", callback_data=f"prev {current.previous_page_number()}"),
