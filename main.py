@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys, os
 from telegram.ext import Updater, MessageHandler, Filters, CallbackQueryHandler
 from facebook_scraper import get_posts
@@ -68,6 +69,7 @@ class FbPage:
         :param context:
         :return: None
         """
+        self.start_time = time.time()
         command = update.message.text.split(' ')[0]
         supported_commands = {
             '/start': Start.command_start,
@@ -77,7 +79,6 @@ class FbPage:
             '/remove': Remove.command_remove
         }
         if command in supported_commands:
-            print(command)
             supported_commands[command](update, context, *self.extract_message(update))
 
     def text_handler(self, update, context):
@@ -89,6 +90,7 @@ class FbPage:
         :param context:
         :return:
         """
+        self.start_time = time.time()
         data = list(self.extract_message(update))
         text = update.message.text
         if 'facebook.com' in text:
@@ -103,6 +105,7 @@ class FbPage:
                 return
         elif text == '.status':
             update.message.reply_text(f"{BOT_ID}\n{(time.time() - self.start_time)//60} Minutes.")
+            return
         update.message.reply_text("Unrecognized Text")
 
 
