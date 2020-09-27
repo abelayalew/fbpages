@@ -48,9 +48,11 @@ class FbPage:
                     threading.Thread(target=post_handler.fb_post_handler, args=(page, bot)).start()
                 time.sleep(300)
             else:
+                print('existing ....')
                 break
         self.updater.stop()
         requests.request('GET', BRO_URL)
+        print('ping sent to brother')
 
     def extract_message(self, update):
         chat_id = update.message.chat_id
@@ -90,10 +92,10 @@ class FbPage:
         :param context:
         :return:
         """
-        self.start_time = time.time()
         data = list(self.extract_message(update))
         text = update.message.text
         if 'facebook.com' in text:
+            self.start_time = time.time()
             try:
                 page = text.split('facebook.com')[1].split('/')[1]
                 list(get_posts(page, pages=1))
@@ -105,8 +107,10 @@ class FbPage:
                 return
         elif text == '.status':
             update.message.reply_text(f"{BOT_ID}\n{(time.time() - self.start_time)//60} Minutes.")
+            self.start_time = time.time()
             return
         update.message.reply_text("Unrecognized Text")
+        self.start_time = time.time()
 
 
 bot = FbPage()
