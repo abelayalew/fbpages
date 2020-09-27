@@ -11,7 +11,7 @@ def pages_keyboard(user, page) -> tuple:
     current = user_pages.page(page)
 
     for i in current.object_list:
-        keyboard.append([InlineKeyboardButton(i, callback_data=f"remove {i}")])
+        keyboard.append([InlineKeyboardButton(i[:20].encode('utf-8'), callback_data=f"remove {i[:20].encode('utf-8')}")])
     if current.has_previous() and current.has_next():
         keyboard.append([
             InlineKeyboardButton("<< Prev", callback_data=f"prev {current.previous_page_number()}"),
@@ -30,7 +30,7 @@ def command_remove(update, context, *args):
     keyboard = pages_keyboard(args[0], 1)
     if len(keyboard[0]) == 1:
         update.message.reply_text("You Don't Have Pages To Remove.")
-        return 
+        return
     reply_markup = InlineKeyboardMarkup(keyboard[0])
     update.message.reply_text(f"Select The Page You Want To Remove\n\n\tPages 1 of {keyboard[1]}", reply_markup=reply_markup)
 
@@ -53,18 +53,20 @@ def callbacks(update, context, *args):
         query.edit_message_text(f"Are You Sure You Want To Remove '{page}'",
                                 reply_markup=InlineKeyboardMarkup(keyboard))
     elif 'yes' in query.data:
+        remoed = False
         page = query.data.split(' ')[1]
         user = User.objects.get(chat_id=chat_id)
         user_pages = eval(user.pages)
-        if page in user_pages:
-            user_pages.remove(page)
-            user.pages = user_pages
-            user.save()
-        else:
+        for _page in user_pages:
+            if page in _page:
+                user_pages.remove(_page)
+                user.pages = user_pages
+                user.save()
+        if not remoed:
             query.edit_message_text("Page Not Found")
             return
         try:
-            page_obj = Page.objects.get(name=page)
+            page_obj = Page.objects.get(name__startswith=page)
             subscribers = eval(page_obj.subscribers)
             if chat_id in subscribers:
                 subscribers.remove(chat_id)
