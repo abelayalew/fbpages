@@ -53,12 +53,12 @@ class FbPage:
         requests.request('GET', BRO_URL)
 
     def extract_message(self, update):
-        chat_id = update.message.chat_id
-        first_name = update.message.chat.first_name
-        last_name = update.message.chat.last_name
-        username = update.message.chat.username
-        message = update.message.text
-        message_id = update.message.message_id
+        chat_id = update.message.chat_id  # 0
+        first_name = update.message.chat.first_name  # 1
+        last_name = update.message.chat.last_name  # 2
+        username = update.message.chat.username  # 3
+        message = update.message.text  # 4
+        message_id = update.message.message_id  # 5
         print(chat_id, first_name, last_name, username, message, message_id)
         return chat_id, first_name, last_name, username, message, message_id
 
@@ -80,6 +80,8 @@ class FbPage:
         }
         if command in supported_commands:
             supported_commands[command](update, context, *self.extract_message(update))
+        elif 'remove' in command:
+            Remove.command_remove(update, context)
 
     def text_handler(self, update, context):
         """
@@ -90,10 +92,10 @@ class FbPage:
         :param context:
         :return:
         """
-        self.start_time = time.time()
         data = list(self.extract_message(update))
         text = update.message.text
         if 'facebook.com' in text:
+            self.start_time = time.time()
             try:
                 page = text.split('facebook.com')[1].split('/')[1]
                 list(get_posts(page, pages=1))
@@ -105,7 +107,9 @@ class FbPage:
                 return
         elif text == '.status':
             update.message.reply_text(f"{BOT_ID}\n{(time.time() - self.start_time)//60} Minutes.")
+            self.start_time = time.time()
             return
+        self.start_time = time.time()
         update.message.reply_text("Unrecognized Text")
 
 

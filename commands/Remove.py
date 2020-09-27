@@ -28,6 +28,23 @@ def pages_keyboard(user, page) -> tuple:
 
 
 def command_remove(update, context, *args):
+    try:
+        user = User.objects.get(chat_id=args[1])
+        index = int(args[4].split(' ')[1])
+        page = None
+        _user_pages = [0, *eval(user.pages)]
+        page = _user_pages[index]
+        del _user_pages[index]
+        del _user_pages[0]
+        user.pages = _user_pages
+        user.save()
+        _page = Page.objects.get(name=page)
+        subscribers = eval(_page.subscribers)
+        subscribers.remove(args[0])
+        _page.save()
+        return
+    except:
+        pass
     keyboard = pages_keyboard(args[0], 1)
     if len(keyboard[0]) == 1:
         update.message.reply_text("You Don't Have Pages To Remove.")
