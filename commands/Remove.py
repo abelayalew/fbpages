@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 
 def pages_keyboard(user, page) -> tuple:
     user = User.objects.get(chat_id=user)
-    user_pages = Paginator(eval(user.pages), 5)
+    user_pages = Paginator(eval(user.pages), 10)
     keyboard = []
     current = user_pages.page(page)
 
@@ -54,7 +54,7 @@ def callbacks(update, context, *args):
         query.edit_message_text(f"Are You Sure You Want To Remove '{page}'",
                                 reply_markup=InlineKeyboardMarkup(keyboard))
     elif 'yes' in query.data:
-        remoed = False
+        removed = False
         page = query.data.split(' ')[1]
         user = User.objects.get(chat_id=chat_id)
         user_pages = eval(user.pages)
@@ -63,7 +63,8 @@ def callbacks(update, context, *args):
                 user_pages.remove(_page)
                 user.pages = user_pages
                 user.save()
-        if not remoed:
+                removed = True
+        if not removed:
             query.edit_message_text("Page Not Found")
             return
         try:
