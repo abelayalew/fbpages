@@ -51,8 +51,9 @@ def remove_index(update, context, *args):
     user.pages = _user_pages
     user.save()
     page = Page.objects.get(name=_page)
-    subscribers = eval(_page.subscribers)
+    subscribers = eval(page.subscribers)
     subscribers.remove(args[0])
+    page.subscribers = subscribers
     page.save()
     return
 

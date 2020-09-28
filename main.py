@@ -75,7 +75,7 @@ class FbPage:
         :return: None
         """
         self.start_time = time.time()
-        command = update.message.text.split(' ')[0]
+        command = update.message.text
         supported_commands = {
             '/start': Start.command_start,
             '/add': Add.command_add,
