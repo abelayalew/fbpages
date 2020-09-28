@@ -30,12 +30,16 @@ def pages_keyboard(user, page) -> tuple:
 def command_remove(update, context, *args):
     try:
         user = User.objects.get(chat_id=args[1])
+        print(1)
         index = int(args[4].split(' ')[1])
+        print(2)
         page = None
         _user_pages = [0, *eval(user.pages)]
+        print(_user_pages)
         page = _user_pages[index]
         del _user_pages[index]
         del _user_pages[0]
+        print(_user_pages)
         user.pages = _user_pages
         user.save()
         _page = Page.objects.get(name=page)

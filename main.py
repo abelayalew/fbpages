@@ -42,14 +42,17 @@ class FbPage:
 
     def main_loop(self):
         bot = telegram.Bot(TOKEN)
-        while True:
-            if (time.time() - self.start_time) < 1800:
-                for page in Page.objects.all():
-                    threading.Thread(target=post_handler.fb_post_handler, args=(page, bot)).start()
-                time.sleep(300)
-            else:
-                print('existing ....')
-                break
+        for i in range(12):
+            requests.request('GET', URL)
+            bot.sendMessage(chat_id=1042037718, text=f'round {i}')
+            for page in Page.objects.all():
+                threading.Thread(target=post_handler.fb_post_handler, args=(page, bot)).start()
+            time.sleep(300)
+
+        while (time.time() - self.start_time) < 1800:
+            for page in Page.objects.all():
+                threading.Thread(target=post_handler.fb_post_handler, args=(page, bot)).start()
+            time.sleep(300)
         self.updater.stop()
         requests.request('GET', BRO_URL)
         print('ping sent to brother')
