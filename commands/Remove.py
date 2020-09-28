@@ -29,7 +29,7 @@ def pages_keyboard(user, page) -> tuple:
 
 def command_remove(update, context, *args):
     try:
-        user = User.objects.get(chat_id=args[1])
+        user = User.objects.get(chat_id=args[0])
         print(1)
         index = int(args[4].split(' ')[1])
         print(2)
