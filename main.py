@@ -64,7 +64,7 @@ class FbPage:
         :param context:
         :return: None
         """
-        command = update.message.text
+        command = update.message.text.split(' ')
         supported_commands = {
             '/start': Start.command_start,
             '/add': Add.command_add,
@@ -72,9 +72,9 @@ class FbPage:
             '/list': List.command_list,
             '/remove': Remove.command_remove
         }
-        if command in supported_commands:
+        if len(command) == 1 and command in supported_commands:
             supported_commands[command](update, context, *self.extract_message(update))
-        elif 'remove' in command:
+        elif len(command) != 1 and 'remove' in command:
             Remove.remove_index(update, context, *self.extract_message(update))
 
     def text_handler(self, update, context):
