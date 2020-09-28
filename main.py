@@ -2,7 +2,8 @@
 import sys, os
 from telegram.ext import Updater, MessageHandler, Filters, CallbackQueryHandler
 from facebook_scraper import get_posts
-import threading, time, telegram, requests
+import threading, time, telegram
+from decouple import config
 
 # django setup
 sys.dont_write_bytecode = True
@@ -14,16 +15,13 @@ import post_handler
 from db.models import *
 
 # tokens
-TOKEN = os.environ.get('TOKEN')
-URL = os.environ.get('URL')
-BRO_URL = os.environ.get('BRO_URL')  # twin bot that works in shift on heroku
-PORT = int(os.environ.get('PORT', 5000))
-BOT_ID = os.environ.get('BOT_ID')
+TOKEN = config('TOKEN')
+URL = config('URL')
+PORT = config('PORT')
 
 
 class FbPage:
     def __init__(self):
-        self.start_time = time.time()
         self.updater = Updater(token=TOKEN, use_context=True)
         self.dispatcher = self.updater.dispatcher
 
@@ -40,26 +38,16 @@ class FbPage:
         threading.Thread(target=self.main_loop).start()
         print("Initialized")
 
-    def main_loop(self):
+    @staticmethod
+    def main_loop():
         bot = telegram.Bot(TOKEN)
-        for i in range(12):
-            self.start_time = time.time()
-            requests.request('GET', URL)
-            bot.sendMessage(chat_id=1042037718, text=f'round {i}')
+        while True:
             for page in Page.objects.all():
                 threading.Thread(target=post_handler.fb_post_handler, args=(page, bot)).start()
             time.sleep(300)
 
-        while (time.time() - self.start_time) < 1800:
-            print(self.start_time//60, " minutes")
-            for page in Page.objects.all():
-                threading.Thread(target=post_handler.fb_post_handler, args=(page, bot)).start()
-            time.sleep(300)
-        self.updater.stop()
-        requests.request('GET', BRO_URL)
-        print('ping sent to brother')
-
-    def extract_message(self, update):
+    @staticmethod
+    def extract_message(update) -> tuple:
         chat_id = update.message.chat_id  # 0
         first_name = update.message.chat.first_name  # 1
         last_name = update.message.chat.last_name  # 2
@@ -76,7 +64,6 @@ class FbPage:
         :param context:
         :return: None
         """
-        self.start_time = time.time()
         command = update.message.text
         supported_commands = {
             '/start': Start.command_start,
@@ -92,9 +79,6 @@ class FbPage:
 
     def text_handler(self, update, context):
         """
-        https://www.facebook.com/pagename/adss
-        https://m.facebook.com/pagename/adss
-
         :param update:
         :param context:
         :return:
@@ -102,7 +86,6 @@ class FbPage:
         data = list(self.extract_message(update))
         text = update.message.text
         if 'facebook.com' in text:
-            self.start_time = time.time()
             try:
                 page = text.split('facebook.com')[1].split('/')[1]
                 list(get_posts(page, pages=1))
@@ -112,14 +95,7 @@ class FbPage:
             except:
                 update.message.reply_text("Invalid Link or Can't Add That Page.")
                 return
-        elif text == '.status':
-            update.message.reply_text(f"{BOT_ID}\n{(time.time() - self.start_time)//60} Minutes.")
-            self.start_time = time.time()
-            return
-        self.start_time = time.time()
         update.message.reply_text("Unrecognized Text")
-        self.start_time = time.time()
 
 
-bot = FbPage()
-bot.start_bot()
+FbPage().start_bot()
