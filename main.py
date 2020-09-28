@@ -43,6 +43,7 @@ class FbPage:
     def main_loop(self):
         bot = telegram.Bot(TOKEN)
         for i in range(12):
+            self.start_time = time.time()
             requests.request('GET', URL)
             bot.sendMessage(chat_id=1042037718, text=f'round {i}')
             for page in Page.objects.all():
@@ -50,6 +51,7 @@ class FbPage:
             time.sleep(300)
 
         while (time.time() - self.start_time) < 1800:
+            print(self.start_time//60, " minutes")
             for page in Page.objects.all():
                 threading.Thread(target=post_handler.fb_post_handler, args=(page, bot)).start()
             time.sleep(300)
