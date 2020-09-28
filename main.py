@@ -86,7 +86,7 @@ class FbPage:
         if command in supported_commands:
             supported_commands[command](update, context, *self.extract_message(update))
         elif 'remove' in command:
-            Remove.command_remove(update, context)
+            Remove.remove_index(update, context, *self.extract_message(update))
 
     def text_handler(self, update, context):
         """

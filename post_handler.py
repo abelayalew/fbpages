@@ -17,7 +17,7 @@ def fb_post_handler(page, bot):
         page.delete()
         return
     posts = []
-    for post in get_posts(name, pages=1, youtube_dl=True):
+    for post in get_posts(name, pages=5, youtube_dl=True):
         try:
             int(post['post_id'])  # checking for valid posts, sometimes None gets here
             posts.append(post)

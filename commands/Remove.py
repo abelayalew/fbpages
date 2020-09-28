@@ -28,33 +28,33 @@ def pages_keyboard(user, page) -> tuple:
 
 
 def command_remove(update, context, *args):
-    try:
-        user = User.objects.get(chat_id=args[0])
-        print(1)
-        index = int(args[4].split(' ')[1])
-        print(2)
-        page = None
-        _user_pages = [0, *eval(user.pages)]
-        print(_user_pages)
-        page = _user_pages[index]
-        del _user_pages[index]
-        del _user_pages[0]
-        print(_user_pages)
-        user.pages = _user_pages
-        user.save()
-        _page = Page.objects.get(name=page)
-        subscribers = eval(_page.subscribers)
-        subscribers.remove(args[0])
-        _page.save()
-        return
-    except:
-        pass
     keyboard = pages_keyboard(args[0], 1)
     if len(keyboard[0]) == 1:
         update.message.reply_text("You Don't Have Pages To Remove.")
         return
     reply_markup = InlineKeyboardMarkup(keyboard[0])
     update.message.reply_text(f"Select The Page You Want To Remove\n\n\tPages 1 of {keyboard[1]}", reply_markup=reply_markup)
+
+
+def remove_index(update, context, *args):
+    user = User.objects.get(chat_id=args[0])
+    index = int(args[4].split(' ')[1])
+    _user_pages = [0, *eval(user.pages)]
+    if len(_user_pages) < index:
+        update.message.reply_text("Index Exceeded Your Number Of Subscriptions")
+        return
+    if not index:
+        update.message.reply_text("Invalid Index")
+    _page = _user_pages[index]
+    del _user_pages[index]
+    del _user_pages[0]
+    user.pages = _user_pages
+    user.save()
+    page = Page.objects.get(name=_page)
+    subscribers = eval(_page.subscribers)
+    subscribers.remove(args[0])
+    page.save()
+    return
 
 
 def callbacks(update, context, *args):
