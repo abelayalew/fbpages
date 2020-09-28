@@ -33,8 +33,7 @@ class FbPage:
         self.dispatcher.add_handler(MessageHandler(Filters.command, self.command_handler))
         self.dispatcher.add_handler(MessageHandler(Filters.text, self.text_handler))
         self.dispatcher.add_handler(CallbackQueryHandler(Remove.callbacks))
-        self.updater.start_webhook(listen='0.0.0.0', port=PORT, url_path=TOKEN)
-        self.updater.bot.setWebhook(URL + TOKEN)
+        self.updater.start_polling()
         threading.Thread(target=self.main_loop).start()
         print("Initialized")
 
@@ -72,9 +71,9 @@ class FbPage:
             '/list': List.command_list,
             '/remove': Remove.command_remove
         }
-        if len(command) == 1 and command in supported_commands:
+        if command in supported_commands:
             supported_commands[command](update, context, *self.extract_message(update))
-        elif len(command) != 1 and 'remove' in command:
+        elif 'remove' in update.message.text:
             Remove.remove_index(update, context, *self.extract_message(update))
 
     def text_handler(self, update, context):
