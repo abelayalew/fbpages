@@ -14,9 +14,15 @@ def pages_keyboard(user, page_number) -> tuple:
     for i in current.object_list:
         db_page = Page.objects.get(name=i)
         if db_page.is_facebook:
-            text = 'fb - ' + user_pages[i] or 'fb - ' + i[:18]
+            if user_pages[i]:
+                text = 'fb - ' + user_pages[i]
+            else:
+                text = 'fb - ' + i[:18]
         else:
-            text = 'tw - ' + user_pages[i] or 'tw - ' + i[:18]
+            if user_pages[i]:
+                text = 'tw - ' + user_pages[i]
+            else:
+                text = 'tw - ' + i[:18]
         keyboard.append([InlineKeyboardButton(text, callback_data=f"remove {text[5:]}")])
     if current.has_previous() and current.has_next():
         keyboard.append([
@@ -51,7 +57,12 @@ def command_remove(update, context, *args):
 
 def remove_index(update, context, *args):
     user = User.objects.get(chat_id=args[0])
-    index = int(args[4].split(' ')[1])
+    try:
+        index = int(args[4].split(' ')[1])
+    except:
+        update.message.reply_text("Invalid Command Usage, \n\nSee /help for more")
+        return
+    
     user_page: dict = eval(user.pages)
     if len(user_page) < index:
         update.message.reply_text("Index Exceeded Your Number Of Subscriptions")

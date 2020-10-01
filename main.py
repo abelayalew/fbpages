@@ -10,7 +10,7 @@ sys.dont_write_bytecode = True
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 import django
 django.setup()
-from commands import Add, Help, List, Remove, Start
+from commands import Add, Help, List, Remove, Start, Rename
 import post_handler
 from db.models import *
 
@@ -69,7 +69,8 @@ class FbPage:
             '/add': Add.command_add,
             '/help': Help.command_help,
             '/list': List.command_list,
-            '/remove': Remove.command_remove
+            '/remove': Remove.command_remove,
+            '/rename': Rename.rename_page
         }
         if '/remove ' in update.message.text:  # remove index
             Remove.remove_index(update, context, *self.extract_message(update))
