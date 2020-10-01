@@ -4,22 +4,22 @@ from facebook_scraper import get_posts
 
 def command_add(update, context, *args):
     user = User.objects.get(chat_id=args[0])
-    user_pages = eval(user.pages)
+    user_pages: dict = eval(user.pages)
 
     if len(args) == 7:
         page = args[-1].lower()
     else:
         try:
             page = update.message.text[5:].lower()
-            if page in user_pages:
+            if page in user_pages.keys():
                 update.message.reply_text(f"Page '{page}' Already Exist")
                 return
             list(get_posts(page, pages=1))
         except:
             update.message.reply_text("Page Does Not Exist")
             return
-    if page not in user_pages:
-        user_pages.append(page)
+    if page not in user_pages.keys():
+        user_pages[page] = None
         user.pages = user_pages
         user.save()
     else:
@@ -28,7 +28,7 @@ def command_add(update, context, *args):
 
     try:
         db_page = Page.objects.get(name=page)
-        subscribers = eval(db_page.subscribers)
+        subscribers: list = eval(db_page.subscribers)
         subscribers.append(args[0])
         db_page.save()
     except Page.DoesNotExist:

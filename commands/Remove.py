@@ -4,14 +4,15 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from django.core.paginator import Paginator
 
 
-def pages_keyboard(user, page) -> tuple:
+def pages_keyboard(user, page_number) -> tuple:
     user = User.objects.get(chat_id=user)
-    user_pages = Paginator(eval(user.pages), 10)
+    user_pages: dict = eval(user.pages)
+    paginated_pages = Paginator(user_pages.keys(), 10)  # only the fb names
     keyboard = []
-    current = user_pages.page(page)
+    current = paginated_pages.page(page_number)
 
     for i in current.object_list:
-        text = str(i[:20].encode('utf-8').decode('utf-8'))
+        text = user_pages[i] or i[:20]
         keyboard.append([InlineKeyboardButton(text, callback_data=f"remove {text}")])
     if current.has_previous() and current.has_next():
         keyboard.append([
@@ -24,12 +25,20 @@ def pages_keyboard(user, page) -> tuple:
     elif current.has_next():
         keyboard.append([InlineKeyboardButton("Next >>", callback_data=f"next {current.next_page_number()}")])
     keyboard.append([InlineKeyboardButton("Cancel", callback_data='cancel')])
-    return keyboard, user_pages.num_pages
+    return keyboard, paginated_pages.num_pages
 
 
 def command_remove(update, context, *args):
+    # if remove have number in it transfer to remove with index (remove_index) function
+    try:
+        number = int(args[4].split(' ')[1])
+        remove_index(update, context, args)
+        return
+    except:
+        pass
+
     keyboard = pages_keyboard(args[0], 1)
-    if len(keyboard[0]) == 1:
+    if len(keyboard[0]) == 1:  # keyboard only have cancel button
         update.message.reply_text("You Don't Have Pages To Remove.")
         return
     reply_markup = InlineKeyboardMarkup(keyboard[0])
@@ -39,19 +48,18 @@ def command_remove(update, context, *args):
 def remove_index(update, context, *args):
     user = User.objects.get(chat_id=args[0])
     index = int(args[4].split(' ')[1])
-    _user_pages = [0, *eval(user.pages)]
-    if len(_user_pages) < index:
+    user_page: dict = eval(user.pages)
+    if len(user_page) < index:
         update.message.reply_text("Index Exceeded Your Number Of Subscriptions")
         return
     if not index:
         update.message.reply_text("Invalid Index")
-    _page = _user_pages[index]
-    del _user_pages[index]
-    del _user_pages[0]
-    user.pages = _user_pages
+    page = [0, *list(user_page.keys())][index]
+    del user_page[page]
+    user.pages = user_page
     user.save()
-    page = Page.objects.get(name=_page)
-    subscribers = eval(page.subscribers)
+    db_page = Page.objects.get(name=page)
+    subscribers: list = eval(db_page.subscribers)
     subscribers.remove(args[0])
     page.subscribers = subscribers
     page.save()
@@ -79,17 +87,26 @@ def callbacks(update, context, *args):
         removed = False
         page = query.data.split(' ')[1]
         user = User.objects.get(chat_id=chat_id)
-        user_pages = eval(user.pages)
+        user_pages: dict = eval(user.pages)
+
         for _page in user_pages:
-            if page in _page:
-                user_pages.remove(_page)
+            if page == user_pages[_page]:
+                del user_pages[_page]
                 user.pages = user_pages
                 user.save()
                 removed = True
+                break
+            elif page in _page:
+                del user_pages[_page]
+                user.pages = user_pages
+                user.save()
+                removed = True
+                break
         if not removed:
             query.edit_message_text("Page Not Found")
             return
         try:
+            page = user_pages[page] or page
             page_obj = Page.objects.get(name__startswith=page)
             subscribers = eval(page_obj.subscribers)
             if chat_id in subscribers:
