@@ -71,8 +71,13 @@ class FbPage:
             '/list': List.command_list,
             '/remove': Remove.command_remove
         }
-        if command in supported_commands:
+        if '/remove ' in update.message.text:  # remove index
+            Remove.remove_index(update, context, *self.extract_message(update))
+            return
+        elif command in supported_commands:
             supported_commands[command](update, context, *self.extract_message(update))
+            return
+        update.message.reply_text("Unsupported Command.")
 
     def text_handler(self, update, context):
         """

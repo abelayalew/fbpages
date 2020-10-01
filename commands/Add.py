@@ -3,6 +3,9 @@ from facebook_scraper import get_posts
 
 
 def command_add(update, context, *args):
+    if args[4] == '/add':
+        update.message.reply_text("Invalid Command Usage, \n\nSee /help for more")
+        return
     user = User.objects.get(chat_id=args[0])
     user_pages: dict = eval(user.pages)
 

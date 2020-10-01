@@ -7,13 +7,17 @@ from django.core.paginator import Paginator
 def pages_keyboard(user, page_number) -> tuple:
     user = User.objects.get(chat_id=user)
     user_pages: dict = eval(user.pages)
-    paginated_pages = Paginator(user_pages.keys(), 10)  # only the fb names
+    paginated_pages = Paginator(list(user_pages.keys()), 10)  # only the fb names
     keyboard = []
     current = paginated_pages.page(page_number)
 
     for i in current.object_list:
-        text = user_pages[i] or i[:20]
-        keyboard.append([InlineKeyboardButton(text, callback_data=f"remove {text}")])
+        db_page = Page.objects.get(name=i)
+        if db_page.is_facebook:
+            text = 'fb - ' + user_pages[i] or 'fb - ' + i[:18]
+        else:
+            text = 'tw - ' + user_pages[i] or 'tw - ' + i[:18]
+        keyboard.append([InlineKeyboardButton(text, callback_data=f"remove {text[5:]}")])
     if current.has_previous() and current.has_next():
         keyboard.append([
             InlineKeyboardButton("<< Prev", callback_data=f"prev {current.previous_page_number()}"),
@@ -61,8 +65,9 @@ def remove_index(update, context, *args):
     db_page = Page.objects.get(name=page)
     subscribers: list = eval(db_page.subscribers)
     subscribers.remove(args[0])
-    page.subscribers = subscribers
-    page.save()
+    db_page.subscribers = subscribers
+    db_page.save()
+    update.message.reply_text(f"You Have Successfully Unsubscribed From '{page}'")
     return
 
 
@@ -106,8 +111,10 @@ def callbacks(update, context, *args):
             query.edit_message_text("Page Not Found")
             return
         try:
-            page = user_pages[page] or page
-            page_obj = Page.objects.get(name__startswith=page)
+            _page = page
+            if page in user_pages.values():
+                _page = user_pages[page]
+            page_obj = Page.objects.get(name__startswith=_page)
             subscribers = eval(page_obj.subscribers)
             if chat_id in subscribers:
                 subscribers.remove(chat_id)

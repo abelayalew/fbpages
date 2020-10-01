@@ -1,11 +1,9 @@
-import time, os
+import os
 import telegram
-import threading
 from facebook_scraper import get_posts
-from db.models import *
 import youtube_dl as yt
-import random, string
-import re
+import random
+import string
 
 TOKEN = os.environ.get('TOKEN')
 
@@ -17,7 +15,7 @@ def fb_post_handler(page, bot):
         page.delete()
         return
     posts = []
-    for post in get_posts(name, pages=2, youtube_dl=True):
+    for post in get_posts(name, youtube_dl=True):
         try:
             int(post['post_id'])  # checking for valid posts, sometimes None gets here
             posts.append(post)
