@@ -1,8 +1,10 @@
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
+
 from fbpages import models
 from facebook_scraper import get_posts
 from telegram import Bot, ParseMode
 from decouple import config
-
 
 bot = Bot(config('BOT_TOKEN'))
 
