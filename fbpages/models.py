@@ -26,7 +26,7 @@ class TelegramUser(models.Model):
 class FacebookPage(models.Model):
     name = models.CharField(primary_key=True, max_length=200)
     last_update = models.BigIntegerField(blank=True, null=True)
-    subscribers = models.ManyToManyField(TelegramUser, related_name='subscribers', blank=True, null=True)
+    subscribers = models.ManyToManyField(TelegramUser, related_name='subscriptions')
 
     def __str__(self):
         return self.name

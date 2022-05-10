@@ -1,4 +1,3 @@
-import imp
 from telegram.ext import CallbackContext
 from telegram import Update
 from fbpages import models
