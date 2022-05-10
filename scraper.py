@@ -1,5 +1,7 @@
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
+import django
+django.setup()
 
 from fbpages import models
 from facebook_scraper import get_posts
