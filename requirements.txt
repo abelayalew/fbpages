@@ -9,7 +9,7 @@ charset-normalizer==2.0.12
 cssselect==1.1.0
 dateparser==1.1.1
 demjson3==3.0.5
-Django==4.0.4
+Django==3.2
 facebook-scraper==0.2.55
 fake-useragent==0.1.11
 idna==3.3
